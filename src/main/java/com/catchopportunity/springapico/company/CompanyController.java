@@ -22,6 +22,7 @@ public class CompanyController {
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/company/{id}") //GET (id)->  return Company with id.
 	public Company getCompanyByID(@PathVariable("id") int id) {
+		id = id - 1 ;
 		return companyService.getList().get(id);
 	}
 
