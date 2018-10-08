@@ -19,6 +19,10 @@ public class InfoController {
 		methodList.add(new Info("GET", "/company", "Just get the all Company List."));
 		methodList.add(new Info("GET", "/company/id", "get a Company with id"));
 		methodList.add(new Info("POST", "/company", "add a company to a List. It takes a Company JSON object."));
+		methodList.add(new Info("DELETE", "/company/{id}" ,"delete the copmany with id"));
+		methodList.add(new Info("PUT", "/company/id", "update the company with id (Cannot change id and email)"));
+		methodList.add(new Info("POST", "/company/login", "Takes Company email password and returns token as Cookie"));
+		methodList.add(new Info("POST", "/company/logout", "Takes Cookie and delete the token from it"));
 
 		return methodList;
 	}

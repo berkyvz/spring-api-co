@@ -1,22 +1,25 @@
 package com.catchopportunity.springapico.company;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Base64;
+
 import org.springframework.stereotype.Service;
 
 import com.catchopportunity.springapico.database.DatabaseHandler;
+import com.catchopportunity.springapico.tokenmanager.TokenManager;
 
 @Service
 public class CompanyService {
 
 	DatabaseHandler dbHandler = new DatabaseHandler();
+	TokenManager tokenManager = new TokenManager();
 
 	public ArrayList<Company> getList() {
 		ArrayList<Company> list = new ArrayList<Company>();
 		dbHandler.connectDB();
 		try {
-			ResultSet rs = dbHandler.executeQuery("SELECT * FROM Company");
+			ResultSet rs = dbHandler.executeGetQuery("SELECT * FROM Company");
 			while (rs.next()) {
 				Company c = new Company();
 				int coid = rs.getInt("coid");
@@ -35,21 +38,191 @@ public class CompanyService {
 				c.setLongitude(longitude);
 				String phone = rs.getString("phone");
 				c.setPhone(phone);
+
+				c.setPassword(null);
+
 				list.add(c);
 			}
 			dbHandler.closeDB();
 			return list;
-
 		} catch (Exception e) {
 			return null;
-
 		}
-
 	}
 
-	public String addCompany(Company company) {
-		// TODO Auto-generated method stub
-		return company.getName() + "added to List";
+	public Company getCompanyWithID(int id, String token) {
+		String username = tokenManager.decodeCompanyToken(token)[0];
+		String password = tokenManager.decodeCompanyToken(token)[1];
+		int realID = getCompanyIdWithEmailAndPassword(username, password);
+		dbHandler.connectDB();
+		if (realID == id) {
+			try {
+				ResultSet rs = dbHandler.executeGetQuery("SELECT * FROM Company WHERE coid = " + realID + ";");
+				while (rs.next()) {
+					Company c = new Company();
+					int coid = rs.getInt("coid");
+					c.setCoid(coid);
+					String email = rs.getString("email");
+					c.setEmail(email);
+					String password1 = rs.getString("password");
+					c.setPassword(password1);
+					String name = rs.getString("name");
+					c.setName(name);
+					String city = rs.getString("city");
+					c.setCity(city);
+					String latitude = rs.getString("latitude");
+					c.setLatitude(latitude);
+					String longitude = rs.getString("longitude");
+					c.setLongitude(longitude);
+					String phone = rs.getString("phone");
+					c.setPhone(phone);
+					return c;
+				}
+				dbHandler.closeDB();
+			} catch (Exception e) {
+				return null;
+			}
+		}
+
+		try {
+			ResultSet rs = dbHandler.executeGetQuery("SELECT * FROM Company WHERE coid = " + id + ";");
+			while (rs.next()) {
+				Company c = new Company();
+				int coid = rs.getInt("coid");
+				c.setCoid(coid);
+				String email = rs.getString("email");
+				c.setEmail(email);
+				String password1 = rs.getString("password");
+				c.setPassword(password1);
+				String name = rs.getString("name");
+				c.setName(name);
+				String city = rs.getString("city");
+				c.setCity(city);
+				String latitude = rs.getString("latitude");
+				c.setLatitude(latitude);
+				String longitude = rs.getString("longitude");
+				c.setLongitude(longitude);
+				String phone = rs.getString("phone");
+				c.setPhone(phone);
+				c.setPassword(null);
+				return c;
+			}
+		} catch (Exception e) {
+			return null;
+		}
+
+		return null;
+	}
+
+	public void addCompany(Company company) {
+		dbHandler.connectDB();
+		try {
+			dbHandler.executeSetQuery(
+					"INSERT INTO Company(email , password , name , city , latitude , longitude ,phone) VALUES " + "( '"
+							+ company.getEmail() + "' , '" + company.getPassword() + "' , '" + company.getName()
+							+ "' , '" + company.getCity() + "' , '" + company.getLatitude() + "' , '"
+							+ company.getLongitude() + "' , '" + company.getPhone() + "');");
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		dbHandler.closeDB();
+	}
+
+	public boolean deleteCompany(int id, String token) {
+		String username = tokenManager.decodeCompanyToken(token)[0];
+		String password = tokenManager.decodeCompanyToken(token)[1];
+		int realID = getCompanyIdWithEmailAndPassword(username, password);
+		dbHandler.connectDB();
+		if (realID == id) {
+			try {
+				dbHandler.executeSetQuery("DELETE FROM Company WHERE coid= " + id + ";");
+				dbHandler.closeDB();
+				return true;
+			} catch (Exception e) {
+				return false;
+			}
+		}
+		dbHandler.closeDB();
+		return false;
+	}
+
+	public boolean updateCompany(Company companyNew, int id, String token) {
+		dbHandler.connectDB();
+
+		String email = tokenManager.decodeCompanyToken(token)[0];
+		String password = tokenManager.decodeCompanyToken(token)[1];
+		int realID = getCompanyIdWithEmailAndPassword(email, password);
+
+		if (realID == id) {
+			try {
+				dbHandler.executeSetQuery("UPDATE Company SET password = '" + companyNew.getPassword() + "' , "
+						+ "name = '" + companyNew.getName() + "' , " + "city = '" + companyNew.getCity() + "' , "
+						+ "latitude = '" + companyNew.getLatitude() + "' , " + "longitude = '"
+						+ companyNew.getLongitude() + "' ," + "phone = '" + companyNew.getPhone() + "' "
+						+ "WHERE coid = " + id + ";");
+				return true;
+
+			} catch (Exception e) {
+				dbHandler.closeDB();
+				return false;
+			}
+		}
+
+		dbHandler.closeDB();
+		return false;
+	}
+
+	public Company getCompanyWithEmailAndPasswordObject(Company company) { // Get hall company email password JSON
+																			// Object.
+		dbHandler.connectDB();
+		try {
+			ResultSet rs = dbHandler.executeGetQuery("SELECT * FROM Company WHERE email='" + company.getEmail()
+					+ "' AND password = '" + company.getPassword() + "';");
+
+			while (rs.next()) {
+				Company c = new Company();
+				int coid = rs.getInt("coid");
+				c.setCoid(coid);
+				String email = rs.getString("email");
+				c.setEmail(email);
+				String password = rs.getString("password");
+				c.setPassword(password);
+				String name = rs.getString("name");
+				c.setName(name);
+				String city = rs.getString("city");
+				c.setCity(city);
+				String latitude = rs.getString("latitude");
+				c.setLatitude(latitude);
+				String longitude = rs.getString("longitude");
+				c.setLongitude(longitude);
+				String phone = rs.getString("phone");
+				c.setPhone(phone);
+
+				return c;
+			}
+		} catch (Exception e) {
+			dbHandler.closeDB();
+			return null;
+		}
+		dbHandler.closeDB();
+		return null;
+	}
+
+	public int getCompanyIdWithEmailAndPassword(String email, String password) { // returns ID if the company exist.
+		dbHandler.connectDB();
+		try {
+			ResultSet rs = dbHandler.executeGetQuery(
+					"SELECT * FROM Company WHERE email='" + email + "' AND password = '" + password + "';");
+
+			while (rs.next()) {
+				return rs.getInt("coid");
+			}
+		} catch (Exception e) {
+			dbHandler.closeDB();
+			return -1;
+		}
+		dbHandler.closeDB();
+		return -1;
 	}
 
 }

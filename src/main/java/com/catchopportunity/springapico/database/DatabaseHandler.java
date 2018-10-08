@@ -45,7 +45,15 @@ public class DatabaseHandler {
 		}
 	}
 	
-	public ResultSet executeQuery(String query) {
+	public void executeSetQuery(String query) {
+		try {
+			st.executeUpdate(query);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+	
+	public ResultSet executeGetQuery(String query) {
 		ResultSet rs;
 		try {
 			rs = st.executeQuery(query);
