@@ -2,7 +2,6 @@ package com.catchopportunity.springapico.company;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Base64;
 
 import org.springframework.stereotype.Service;
 
@@ -103,6 +102,9 @@ public class CompanyService {
 	}
 
 	public boolean deleteCompany(int id, String token) {
+		if(token.equals("Logged-Out")) {
+			return false;
+		}
 		String username = tokenManager.decodeCompanyToken(token)[0];
 		String password = tokenManager.decodeCompanyToken(token)[1];
 		int realID = getCompanyIdWithEmailAndPassword(username, password);
