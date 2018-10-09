@@ -29,6 +29,7 @@ public class CompanyController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/company/{id}") // GET (id)-> return Company with id. SECURED
 	public Company getCompanyByID(@PathVariable("id") int id, @CookieValue("AuthSession") Cookie c) {
+
 		return companyService.getCompanyWithID(id, c.getValue());
 	}
 
@@ -56,7 +57,7 @@ public class CompanyController {
 		System.out.println("oldValue" + authSession.getValue());
 		boolean response = companyService.updateCompany(companyNew, id, authSession.getValue());
 		if (response) {
-			String up = companyNew.getEmail()+":"+companyNew.getPassword();
+			String up = companyNew.getEmail() + ":" + companyNew.getPassword();
 			String tokenNew = new String(Base64.getEncoder().encode(up.getBytes()));
 			authSession.setValue(tokenNew);
 			authSession.setPath("/");
