@@ -17,10 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class CompanyController {
 
-	// USUAL THINGS
 
 	@Autowired
 	private CompanyService companyService;
+	
+	// USUAL THINGS
 
 	@RequestMapping(method = RequestMethod.GET, value = "/company") // GET -> return All Companies.
 	public ArrayList<Company> getCompanies() {

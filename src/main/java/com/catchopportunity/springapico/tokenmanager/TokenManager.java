@@ -5,7 +5,6 @@ import java.util.Base64;
 public class TokenManager {
 
 	public String encodeCompanyEmailPassword(String email, String password) { //Custom token generator for Company;
-
 		String str = email + ":" + password;
 		String token = new String(Base64.getEncoder().encode(str.getBytes()));
 		return token;

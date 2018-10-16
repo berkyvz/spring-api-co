@@ -16,6 +16,8 @@ public class InfoController {
 		ArrayList<Info> methodList = new ArrayList<Info>();
 
 		// Company Controller
+		methodList.add(new Info("IMPORTANT ABOUT COOKIE", "/company/login", "You must send a POST request to "
+				+ "login a email and password as a initliaze and use the other rest APIs.(SEND FALSE EMAIL AND PASSWORD IT DOESNT MATTER.)"));
 		methodList.add(new Info("GET", "/company", "Just get the all Company List."));
 		methodList.add(new Info("GET", "/company/id", "get a Company with id"));
 		methodList.add(new Info("POST", "/company", "add a company to a List. It takes a Company JSON object."));
@@ -23,6 +25,8 @@ public class InfoController {
 		methodList.add(new Info("PUT", "/company/id", "update the company with id (Cannot change id and email)"));
 		methodList.add(new Info("POST", "/company/login", "Takes Company email password and returns token as Cookie"));
 		methodList.add(new Info("POST", "/company/logout", "Takes Cookie and delete the token from it"));
+		methodList.add(new Info("GET", "/opportunity", "Get all opportunities that can be listed."));
+		methodList.add(new Info("GET", "/opportunity/{id}", "Get opportunity with id"));
 
 		return methodList;
 	}
