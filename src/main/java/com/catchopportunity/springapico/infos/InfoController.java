@@ -25,8 +25,10 @@ public class InfoController {
 		methodList.add(new Info("PUT", "/company/id", "update the company with id (Cannot change id and email)"));
 		methodList.add(new Info("POST", "/company/login", "Takes Company email password and returns token as Cookie"));
 		methodList.add(new Info("POST", "/company/logout", "Takes Cookie and delete the token from it"));
+		
 		methodList.add(new Info("GET", "/opportunity", "Get all opportunities that can be listed."));
 		methodList.add(new Info("GET", "/opportunity/{id}", "Get opportunity with id"));
+		methodList.add(new Info("GET", "/company/opportunity", "It needs cookie to understant who you are. returns opportunities that the company owned."));
 
 		return methodList;
 	}

@@ -14,29 +14,41 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.catchopportunity.springapico.opportunity.Opportunity;
+import com.catchopportunity.springapico.opportunity.OpportunityService;
+
 @RestController
 public class CompanyController {
 
-
 	@Autowired
 	private CompanyService companyService;
-	
+
+	@Autowired
+	private OpportunityService opportunityService;
+
 	// USUAL THINGS
 
 	@RequestMapping(method = RequestMethod.GET, value = "/company") // GET -> return All Companies.
-	public ArrayList<Company> getCompanies() {
-		return companyService.getList();
+	public ResponseEntity<?> getCompanies() {
+		return ResponseEntity.status(HttpStatus.OK).body(companyService.getList());
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/company/{id}") // GET (id)-> return Company with id. SECURED
-	public Company getCompanyByID(@PathVariable("id") int id, @CookieValue("AuthSession") Cookie c) {
-
-		return companyService.getCompanyWithID(id, c.getValue());
+	public ResponseEntity<?> getCompanyByID(@PathVariable("id") int id, @CookieValue("AuthSession") Cookie c) {
+		Company com = companyService.getCompanyWithID(id, c.getValue());
+		if (com.getCoid() == 0)
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(com);
+		else
+			return ResponseEntity.status(HttpStatus.OK).body(com);
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/company") // POST -> add Company to the list.
-	public void registerCompany(@RequestBody Company company) {
-		companyService.addCompany(company);
+	public ResponseEntity<?> registerCompany(@RequestBody Company company) {
+		boolean isSaved = companyService.addCompany(company);
+		if (isSaved)
+			return ResponseEntity.status(HttpStatus.CREATED).build();
+		else
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 	}
 
 	@RequestMapping(method = RequestMethod.DELETE, value = "/company/{id}") // DELETE (id) -> delete the company with id
@@ -98,6 +110,17 @@ public class CompanyController {
 		authSession.setPath("/");
 		response.addCookie(authSession);
 		return ResponseEntity.status(HttpStatus.OK).build();
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "company/opportunity") // returning cookie's opporutnity;
+	public ResponseEntity<?> getCompanyOpportunities(@CookieValue("AuthSession") Cookie authSession) {
+		if (authSession.getValue().equals("Logged-Out")) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ArrayList<Opportunity>());
+		} else {
+			Company company = companyService.getCompanyFromToken(authSession.getValue());
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(opportunityService.getOpportunitiesOwnedByCompany(company.getCoid()));
+		}
 	}
 
 }

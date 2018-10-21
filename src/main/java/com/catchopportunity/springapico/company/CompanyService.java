@@ -66,7 +66,7 @@ public class CompanyService {
 				returnedCompany.setPhone(rs.getString("phone"));
 			}
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			return null;
 		}
 
 		if (!token.equals("Logged-Out")) {
@@ -87,7 +87,7 @@ public class CompanyService {
 		return returnedCompany;
 	}
 
-	public void addCompany(Company company) {
+	public boolean addCompany(Company company) {
 		dbHandler.connectDB();
 		try {
 			dbHandler.executeSetQuery(
@@ -96,13 +96,16 @@ public class CompanyService {
 							+ "' , '" + company.getCity() + "' , '" + company.getLatitude() + "' , '"
 							+ company.getLongitude() + "' , '" + company.getPhone() + "');");
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			dbHandler.closeDB();
+			return false;
 		}
 		dbHandler.closeDB();
+		return true;
+
 	}
 
 	public boolean deleteCompany(int id, String token) {
-		if(token.equals("Logged-Out")) {
+		if (token.equals("Logged-Out")) {
 			return false;
 		}
 		String username = tokenManager.decodeCompanyToken(token)[0];
@@ -124,11 +127,11 @@ public class CompanyService {
 
 	public boolean updateCompany(Company companyNew, int id, String token) {
 		dbHandler.connectDB();
-		
-		if(token.equals("Logged-Out")) {
+
+		if (token.equals("Logged-Out")) {
 			return false;
 		}
-		
+
 		String email = tokenManager.decodeCompanyToken(token)[0];
 		String password = tokenManager.decodeCompanyToken(token)[1];
 		int realID = getCompanyIdWithEmailAndPassword(email, password);
@@ -203,6 +206,18 @@ public class CompanyService {
 		}
 		dbHandler.closeDB();
 		return -1;
+	}
+
+	public Company getCompanyFromToken(String token) {
+		String[] ep = tokenManager.decodeCompanyToken(token);
+		String email = ep[0];
+		String password = ep[1];
+		Company company = new Company();
+		company.setEmail(email);
+		company.setPassword(password);
+		company = getCompanyWithEmailAndPasswordObject(company);
+		return company;
+
 	}
 
 }
