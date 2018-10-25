@@ -34,9 +34,11 @@ public class OpportunityService {
 				Opportunity o = new Opportunity(oid, latitude, longitude, count, desc1, desc2, desc3, price, city);
 				oppList.add(o);
 			}
-
+			dbHandler.closeDB();
 			return oppList;
 		} catch (Exception e) {
+
+			dbHandler.closeDB();
 			return null;
 		}
 	}
@@ -104,5 +106,49 @@ public class OpportunityService {
 			dbHandler.closeDB();
 			return null;
 		}
+	}
+
+	public boolean addOpportunity(Opportunity opportunity, int coid) {
+		dbHandler.connectDB();
+		try {
+			dbHandler.executeSetQuery(
+					"INSERT INTO Opportunity(price, count , city , latitude , longitude , desc1 , desc2 , desc3 ) "
+							+ "VALUES ('" + opportunity.getPrice() + "' , '" + opportunity.getCount() + "' , '"
+							+ opportunity.getCity() + "' ," + " '" + opportunity.getLatitude() + "' , '"
+							+ opportunity.getLongitude() + "' , '" + opportunity.getDesc1() + "' , " + "'"
+							+ opportunity.getDesc2() + "',  '" + opportunity.getDesc3() + "') ;");
+		} catch (Exception e) {
+			dbHandler.closeDB();
+			return false;
+		}
+		try {
+			ArrayList<Opportunity> list = getAllOpportunities();
+			Opportunity o = list.get(list.size() - 1);
+			dbHandler.connectDB();
+			dbHandler.executeSetQuery("INSERT INTO Generate(oid , coid) VALUES ( " + o.getOid() + " , " + coid + ");");
+		} catch (Exception e) {
+			dbHandler.closeDB();
+			return false;
+		}
+		dbHandler.closeDB();
+		return true;
+	}
+
+	public boolean deleteOpportunity(int index, int coid) {
+		index--;
+		dbHandler.connectDB();
+		Opportunity deletingOp = getOpportunitiesOwnedByCompany(coid).get(index);
+		dbHandler.connectDB();
+		try {
+			dbHandler.executeSetQuery("DELETE  FROM Opportunity WHERE oid=" + deletingOp.getOid() + ";");
+			dbHandler.executeSetQuery("DELETE  FROM Generate WHERE oid=" + deletingOp.getOid() + ";");
+		} catch (Exception e) {
+			dbHandler.closeDB();
+			return false;
+		}
+
+		dbHandler.closeDB();
+		return true;
+
 	}
 }

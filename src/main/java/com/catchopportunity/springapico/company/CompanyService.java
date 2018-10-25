@@ -128,6 +128,13 @@ public class CompanyService {
 	public boolean updateCompany(Company companyNew, int id, String token) {
 		dbHandler.connectDB();
 
+		if (companyNew.getCity() == null || companyNew.getPassword() == null || 
+				companyNew.getLatitude() == null || companyNew.getLatitude() == null || companyNew.getName() == null || companyNew.getPhone() == null || companyNew.getCity() == null) {
+			dbHandler.closeDB();
+			return false;
+		}
+		
+
 		if (token.equals("Logged-Out")) {
 			return false;
 		}
@@ -143,6 +150,7 @@ public class CompanyService {
 						+ "latitude = '" + companyNew.getLatitude() + "' , " + "longitude = '"
 						+ companyNew.getLongitude() + "' ," + "phone = '" + companyNew.getPhone() + "' "
 						+ "WHERE coid = " + id + ";");
+				dbHandler.closeDB();
 				return true;
 
 			} catch (Exception e) {

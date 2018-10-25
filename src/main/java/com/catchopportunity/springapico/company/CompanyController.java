@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Base64;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import javax.websocket.server.PathParam;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -67,24 +69,34 @@ public class CompanyController {
 																			// (Cannot change id and email) SECURED.
 	public ResponseEntity<?> updateCompany(@RequestBody Company companyNew, @PathVariable("id") int id,
 			@CookieValue("AuthSession") Cookie authSession, HttpServletResponse servletRepsonse) {
-		System.out.println("oldValue" + authSession.getValue());
+		
 		boolean response = companyService.updateCompany(companyNew, id, authSession.getValue());
 		if (response) {
 			String up = companyNew.getEmail() + ":" + companyNew.getPassword();
 			String tokenNew = new String(Base64.getEncoder().encode(up.getBytes()));
 			authSession.setValue(tokenNew);
 			authSession.setPath("/");
-			System.out.println("newValue" + authSession.getValue());
 			servletRepsonse.addCookie(authSession);
 			return ResponseEntity.status(HttpStatus.OK).body(companyNew);
 		}
 		return ResponseEntity.status(HttpStatus.NETWORK_AUTHENTICATION_REQUIRED).build();
 	}
 
+	
+	
+
 	// LOGIN LOGOUT
 
+	@RequestMapping(method = RequestMethod.POST, value = "company/init")
+	public ResponseEntity<?> initiliazeToken(HttpServletResponse response) {
+		Cookie authSession = new Cookie("AuthSession", "");
+		authSession.setValue("Logged-Out");
+		authSession.setPath("/");
+		response.addCookie(authSession);
+		return ResponseEntity.status(HttpStatus.OK).build();
+	}
+
 	@RequestMapping(method = RequestMethod.POST, value = "company/login") // POST ( Company) -> gives token if you able
-																			// to take it.
 	public ResponseEntity<Company> getToken(@RequestBody Company company, HttpServletResponse response) {
 		Company c = companyService.getCompanyWithEmailAndPasswordObject(company);
 		if (c != null) {
@@ -110,17 +122,6 @@ public class CompanyController {
 		authSession.setPath("/");
 		response.addCookie(authSession);
 		return ResponseEntity.status(HttpStatus.OK).build();
-	}
-
-	@RequestMapping(method = RequestMethod.GET, value = "company/opportunity") // returning cookie's opporutnity;
-	public ResponseEntity<?> getCompanyOpportunities(@CookieValue("AuthSession") Cookie authSession) {
-		if (authSession.getValue().equals("Logged-Out")) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ArrayList<Opportunity>());
-		} else {
-			Company company = companyService.getCompanyFromToken(authSession.getValue());
-			return ResponseEntity.status(HttpStatus.OK)
-					.body(opportunityService.getOpportunitiesOwnedByCompany(company.getCoid()));
-		}
 	}
 
 }
