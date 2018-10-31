@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,6 +45,20 @@ public class CompanyController {
 			return ResponseEntity.status(HttpStatus.OK).body(com);
 	}
 
+	@RequestMapping(method = RequestMethod.GET, value = "company/me")
+	public ResponseEntity<?> getCompanyInfos(@CookieValue("AuthSession") Cookie authSession) {
+		if (authSession.getValue().equals("Logged-Out")) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		} else {
+			Company com = companyService.getCompanyFromToken(authSession.getValue());
+			if (com != null) {
+				return ResponseEntity.status(HttpStatus.OK).body(com);
+			} else {
+				return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+			}
+		}
+	}
+
 	@RequestMapping(method = RequestMethod.POST, value = "/company") // POST -> add Company to the list.
 	public ResponseEntity<?> registerCompany(@RequestBody Company company) {
 		boolean isSaved = companyService.addCompany(company);
@@ -69,7 +84,7 @@ public class CompanyController {
 																			// (Cannot change id and email) SECURED.
 	public ResponseEntity<?> updateCompany(@RequestBody Company companyNew, @PathVariable("id") int id,
 			@CookieValue("AuthSession") Cookie authSession, HttpServletResponse servletRepsonse) {
-		
+
 		boolean response = companyService.updateCompany(companyNew, id, authSession.getValue());
 		if (response) {
 			String up = companyNew.getEmail() + ":" + companyNew.getPassword();
@@ -81,9 +96,6 @@ public class CompanyController {
 		}
 		return ResponseEntity.status(HttpStatus.NETWORK_AUTHENTICATION_REQUIRED).build();
 	}
-
-	
-	
 
 	// LOGIN LOGOUT
 

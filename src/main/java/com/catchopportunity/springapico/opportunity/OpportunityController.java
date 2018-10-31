@@ -86,17 +86,16 @@ public class OpportunityController {
 	}
 
 	@RequestMapping(method = RequestMethod.DELETE, value = "company/opportunity/{index}")
-	public ResponseEntity<?> deleteOpportunity(@CookieValue("AuthSession") Cookie authSession , @PathVariable("index") int index) {
-		if(authSession.getValue().equals("Logged-Out")) {
+	public ResponseEntity<?> deleteOpportunity(@CookieValue("AuthSession") Cookie authSession,
+			@PathVariable("index") int index) {
+		if (authSession.getValue().equals("Logged-Out")) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		}
-		else {
+		} else {
 			Company com = companyService.getCompanyFromToken(authSession.getValue());
-			boolean isDeleted = opportunityService.deleteOpportunity(index , com.getCoid());
-			if(isDeleted) {
+			boolean isDeleted = opportunityService.deleteOpportunity(index, com.getCoid());
+			if (isDeleted) {
 				return ResponseEntity.status(HttpStatus.OK).build();
-			}
-			else {
+			} else {
 				return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
 			}
 		}
