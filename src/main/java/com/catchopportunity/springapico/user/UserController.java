@@ -1,7 +1,10 @@
 package com.catchopportunity.springapico.user;
 
-import java.util.ArrayList;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,10 +13,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
 	
-	@RequestMapping(method = RequestMethod.GET, value = "/user")
-	public ArrayList<User> hi() {
-		ArrayList<User> list = new ArrayList<User>();
-		list.add(new User(1, "berkyavuz@gmail.com", "1234", "34.2131", "21.2431"));
-		return list;
+	@Autowired
+	private UserService userService;
+	
+	@RequestMapping(method = RequestMethod.POST, value = "user/login")
+	public ResponseEntity<?> loginUser(@RequestBody String token) {
+		User loginUser = userService.userLogin(token);
+		if(loginUser != null) {
+			return ResponseEntity.status(HttpStatus.OK).body(loginUser);
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
 	}
 }

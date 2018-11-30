@@ -15,5 +15,13 @@ public class TokenManager {
 		String[] up = usernamepassword.split(":");
 		return up;
 	}
+	
+	public String[] decodeUserToken(String token) {
+		String emailpassword = new String(Base64.getDecoder().decode(token.getBytes()));
+		String[] up = emailpassword.split(":");
+		return up;
+	}
+	
+	
 
 }

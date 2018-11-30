@@ -34,6 +34,8 @@ public class InfoController {
 		methodList.add(new Info("POST", "/opportunity", "Adding a opportunity. It needs Cookie."));
 		methodList.add(new Info("DELETE", "/company/opportunity/{index}", "Deletes the opportunity from company. It needs cookie also ou must know the index of the Opportunity  [NOT ID]"));
 		
+		methodList.add(new Info("POST", "/user/login", "Takes user token and give all datas about this user."));
+		
 		
 		return methodList;
 	}
