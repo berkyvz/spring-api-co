@@ -2,10 +2,7 @@ package com.catchopportunity.springapico.user;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import com.catchopportunity.springapico.database.DatabaseHandler;
 import com.catchopportunity.springapico.tokenmanager.TokenManager;
 
@@ -16,16 +13,16 @@ public class UserService {
 	TokenManager tokenManager = new TokenManager();
 
 	public User userLogin(String token) {
-		 String[] up = tokenManager.decodeUserToken(token);
-		 String email = up[0];
-		 String password = up[1];
-		 User user = getUserWithEmailPassword(email, password);
-		 return user;
-	 }
+		String[] up = tokenManager.decodeUserToken(token);
+		String email = up[0];
+		String password = up[1];
+		User user = getUserWithEmailPassword(email, password);
+		return user;
+	}
 
 	public User getUserWithEmailPassword(String email, String password) {
-		ResultSet rs = dbHandler
-				.executeGetQuery("SELECT * FROM User WHERE email = '" + email + "' AND password='" + password + "';");
+		dbHandler.connectDB();
+		ResultSet rs = dbHandler.executeGetQuery("SELECT * FROM User WHERE email='" + email + "'  AND password='" + password + "'  ;");
 		try {
 			while (rs.next()) {
 
