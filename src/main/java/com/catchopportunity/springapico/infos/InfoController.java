@@ -33,8 +33,12 @@ public class InfoController {
 		methodList.add(new Info("GET", "/company/opportunity/{index}", "It takes an index and returns the index of the opportunities of the company who logged in"));
 		methodList.add(new Info("POST", "/opportunity", "Adding a opportunity. It needs Cookie."));
 		methodList.add(new Info("DELETE", "/company/opportunity/{index}", "Deletes the opportunity from company. It needs cookie also ou must know the index of the Opportunity  [NOT ID]"));
+
+		//User Controller
+		methodList.add(new Info("GET", "/user/login/}", "Takes 'Auth' header as a token and give all datas about this user."));
+		methodList.add(new Info("POST", "/user/register/}", "Takes 'User' model and save it to DB"));
 		
-		methodList.add(new Info("POST", "/user/login", "Takes user token and give all datas about this user."));
+		
 		
 		
 		return methodList;

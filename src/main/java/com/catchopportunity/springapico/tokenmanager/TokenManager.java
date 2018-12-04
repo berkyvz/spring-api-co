@@ -22,6 +22,12 @@ public class TokenManager {
 		return up;
 	}
 	
+	public String encodeUserEmailPassword(String email, String password) { //Custom token generator for Company;
+		String str = email + ":" + password;
+		String token = new String(Base64.getEncoder().encode(str.getBytes()));
+		return token;
+	}
+	
 	
 
 }

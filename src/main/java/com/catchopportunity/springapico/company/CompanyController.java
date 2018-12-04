@@ -45,7 +45,7 @@ public class CompanyController {
 			return ResponseEntity.status(HttpStatus.OK).body(com);
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "company/me")
+	@RequestMapping(method = RequestMethod.GET, value = "/company/me")
 	public ResponseEntity<?> getCompanyInfos(@CookieValue("AuthSession") Cookie authSession) {
 		if (authSession.getValue().equals("Logged-Out")) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -99,7 +99,7 @@ public class CompanyController {
 
 	// LOGIN LOGOUT
 
-	@RequestMapping(method = RequestMethod.POST, value = "company/init")
+	@RequestMapping(method = RequestMethod.POST, value = "/company/init")
 	public ResponseEntity<?> initiliazeToken(HttpServletResponse response) {
 		Cookie authSession = new Cookie("AuthSession", "");
 		authSession.setValue("Logged-Out");
@@ -108,7 +108,7 @@ public class CompanyController {
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 
-	@RequestMapping(method = RequestMethod.POST, value = "company/login") // POST ( Company) -> gives token if you able
+	@RequestMapping(method = RequestMethod.POST, value = "/company/login") // POST ( Company) -> gives token if you able
 	public ResponseEntity<Company> getToken(@RequestBody Company company, HttpServletResponse response) {
 		Company c = companyService.getCompanyWithEmailAndPasswordObject(company);
 		if (c != null) {
@@ -128,7 +128,7 @@ public class CompanyController {
 		}
 	}
 
-	@RequestMapping(method = RequestMethod.POST, value = "company/logout") // POST -> Deletes token
+	@RequestMapping(method = RequestMethod.POST, value = "/company/logout") // POST -> Deletes token
 	public ResponseEntity<?> deleteToken(@CookieValue("AuthSession") Cookie authSession, HttpServletResponse response) {
 		authSession.setValue("Logged-Out");
 		authSession.setPath("/");
