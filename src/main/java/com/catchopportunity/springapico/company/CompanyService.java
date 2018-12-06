@@ -128,12 +128,12 @@ public class CompanyService {
 	public boolean updateCompany(Company companyNew, int id, String token) {
 		dbHandler.connectDB();
 
-		if (companyNew.getCity() == null || companyNew.getPassword() == null || 
-				companyNew.getLatitude() == null || companyNew.getLatitude() == null || companyNew.getName() == null || companyNew.getPhone() == null || companyNew.getCity() == null) {
+		if (companyNew.getCity() == null || companyNew.getPassword() == null || companyNew.getLatitude() == null
+				|| companyNew.getLatitude() == null || companyNew.getName() == null || companyNew.getPhone() == null
+				|| companyNew.getCity() == null) {
 			dbHandler.closeDB();
 			return false;
 		}
-		
 
 		if (token.equals("Logged-Out")) {
 			return false;
@@ -163,15 +163,15 @@ public class CompanyService {
 		return false;
 	}
 
-	public Company getCompanyWithEmailAndPasswordObject(Company company) { // Get hall company email password JSON
-																			// Object.
+	public CompanyToken getCompanyWithEmailAndPasswordObject(Company company) { // Get hall company email password JSON
+		// Object.
 		dbHandler.connectDB();
 		try {
 			ResultSet rs = dbHandler.executeGetQuery("SELECT * FROM Company WHERE email='" + company.getEmail()
 					+ "' AND password = '" + company.getPassword() + "';");
 
 			while (rs.next()) {
-				Company c = new Company();
+				CompanyToken c = new CompanyToken();
 				int coid = rs.getInt("coid");
 				c.setCoid(coid);
 				String email = rs.getString("email");
@@ -223,8 +223,34 @@ public class CompanyService {
 		Company company = new Company();
 		company.setEmail(email);
 		company.setPassword(password);
-		company = getCompanyWithEmailAndPasswordObject(company);
+
+		CompanyToken ctoken = getCompanyWithEmailAndPasswordObject(company);
+		company.setCity(ctoken.getCity());
+		company.setCoid(ctoken.getCoid());
+		company.setEmail(email);
+		company.setLatitude(ctoken.getLatitude());
+		company.setLongitude(ctoken.getLongitude());
+		company.setName(ctoken.getName());
+		company.setPassword(password);
+		company.setPhone(ctoken.getPhone());
+
 		return company;
+
+	}
+
+	public Boolean isExist(String email, String token) {
+		try {
+			Company c = getCompanyFromToken(token);
+
+			if (email.equals(c.getEmail())) {
+				return true;
+			}
+
+		} catch (Exception e) {
+			return false;
+		}
+
+		return false;
 
 	}
 

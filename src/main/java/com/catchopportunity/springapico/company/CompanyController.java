@@ -109,13 +109,14 @@ public class CompanyController {
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/company/login") // POST ( Company) -> gives token if you able
-	public ResponseEntity<Company> getToken(@RequestBody Company company, HttpServletResponse response) {
-		Company c = companyService.getCompanyWithEmailAndPasswordObject(company);
+	public ResponseEntity<CompanyToken> getToken(@RequestBody Company company, HttpServletResponse response) {
+		CompanyToken c = companyService.getCompanyWithEmailAndPasswordObject(company);
 		if (c != null) {
 			String empa = c.getEmail() + ":" + c.getPassword();
 			String token = new String(Base64.getEncoder().encode(empa.getBytes()));
 			Cookie authSession = new Cookie("AuthSession", "");
 			authSession.setValue(token);
+			c.setToken(token);
 			authSession.setPath("/");
 			response.addCookie(authSession);
 			return ResponseEntity.status(HttpStatus.OK).body(c);
@@ -124,6 +125,20 @@ public class CompanyController {
 			authSession.setValue("Logged-Out");
 			authSession.setPath("/");
 			response.addCookie(authSession);
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
+	}
+
+	@RequestMapping(method = RequestMethod.POST, value = "/company/dashboardcheck") //takes email and token . returns status OK if given informations are true
+	public ResponseEntity<?> dashboardCheck(@RequestBody CompanyToken company) {
+		String token = company.getToken();
+		String email = company.getEmail();
+		Boolean isExist = companyService.isExist(email , token);
+
+		if (isExist) {
+			Company c = companyService.getCompanyFromToken(company.getToken());
+			return ResponseEntity.status(HttpStatus.OK).body(c);
+		} else {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
 	}
