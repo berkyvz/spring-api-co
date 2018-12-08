@@ -123,7 +123,7 @@ public class OpportunityService {
 		}
 		try {
 			ArrayList<Opportunity> list = getAllOpportunities();
-			Opportunity o = list.get(list.size() - 1);
+			Opportunity o = list.get(list.size() - 1); //this is not a good way :(
 			dbHandler.connectDB();
 			dbHandler.executeSetQuery("INSERT INTO Generate(oid , coid) VALUES ( " + o.getOid() + " , " + coid + ");");
 		} catch (Exception e) {

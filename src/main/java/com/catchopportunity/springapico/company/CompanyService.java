@@ -163,6 +163,7 @@ public class CompanyService {
 		if (realID == id) {
 			try {
 				dbHandler.executeSetQuery("DELETE FROM Company WHERE coid= " + id + ";");
+				dbHandler.executeSetQuery("DELETE FROM Generate WHERE coid= " + id + ";");
 				dbHandler.closeDB();
 				return true;
 			} catch (Exception e) {

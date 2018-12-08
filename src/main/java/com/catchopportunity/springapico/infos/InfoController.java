@@ -20,8 +20,8 @@ public class InfoController {
 		methodList.add(new Info("GET", "/company/id", "get a Company with idi . it doesnt return password."));
 		methodList.add(new Info("GET", "/company/me", "Get all info about the company which is already logged in. it needs AuthSession header as token"));
 		methodList.add(new Info("POST", "/company", "add a company to a List. It takes a Company JSON object."));
-		methodList.add(new Info("DELETE", "/company/{id}" ,"delete the copmany with id. it needs AuthSession header as token for permission"));
-		methodList.add(new Info("PUT", "/company/id", "update the company with id (Cannot change id and email)"));
+		methodList.add(new Info("DELETE", "/company/{id}" ,"delete the copmany with id. AuthSession header token must be token of the company that try to delete."));
+		methodList.add(new Info("PUT", "/company/id", "update the company with id (Cannot change id and email), AuthSession header token must be token of the company that try to edit."));
 		methodList.add(new Info("POST", "/company/login", "Takes Company email password and return all data with token"));
 		methodList.add(new Info("POST", "/company/dashboardcheck", "takes email and token . returns status OK if given informations are true"));
 			
