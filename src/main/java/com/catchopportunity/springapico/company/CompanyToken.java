@@ -17,6 +17,18 @@ public class CompanyToken {
 		
 	}
 	
+	public CompanyToken(Company c , String token) {
+		this.coid = c.getCoid();
+		this.email = c.getEmail();
+		this.password = c.getPassword();
+		this.name = c.getName();
+		this.city = c.getCity();
+		this.latitude = c.getLatitude();
+		this.longitude = c.getLongitude();
+		this.phone = c.getPhone();
+		this.token = token;
+		
+	}
 	
 	
 	public CompanyToken(int coid, String email, String password, String name, String city, String latitude,

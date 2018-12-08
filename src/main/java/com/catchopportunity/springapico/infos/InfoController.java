@@ -16,15 +16,13 @@ public class InfoController {
 		ArrayList<Info> methodList = new ArrayList<Info>();
 
 		// Company Controller
-		methodList.add(new Info("POST", "/company/init", "It initiliaze the cookie . It is needed for every person who visit the web site."));
 		methodList.add(new Info("GET", "/company", "Just get the all Company List."));
-		methodList.add(new Info("GET", "/company/id", "get a Company with id"));
-		methodList.add(new Info("GET", "/company/me", "Get all info about the company which is already logged in."));
+		methodList.add(new Info("GET", "/company/id", "get a Company with idi . it doesnt return password."));
+		methodList.add(new Info("GET", "/company/me", "Get all info about the company which is already logged in. it needs AuthSession header as token"));
 		methodList.add(new Info("POST", "/company", "add a company to a List. It takes a Company JSON object."));
-		methodList.add(new Info("DELETE", "/company/{id}" ,"delete the copmany with id"));
+		methodList.add(new Info("DELETE", "/company/{id}" ,"delete the copmany with id. it needs AuthSession header as token for permission"));
 		methodList.add(new Info("PUT", "/company/id", "update the company with id (Cannot change id and email)"));
-		methodList.add(new Info("POST", "/company/login", "Takes Company email password and returns token as Cookie and also token"));
-		methodList.add(new Info("POST", "/company/logout", "Takes Cookie and delete the token from it"));
+		methodList.add(new Info("POST", "/company/login", "Takes Company email password and return all data with token"));
 		methodList.add(new Info("POST", "/company/dashboardcheck", "takes email and token . returns status OK if given informations are true"));
 			
 		//Opportunity Controller

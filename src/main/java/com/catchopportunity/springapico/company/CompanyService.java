@@ -14,7 +14,7 @@ public class CompanyService {
 	DatabaseHandler dbHandler = new DatabaseHandler();
 	TokenManager tokenManager = new TokenManager();
 
-	public ArrayList<Company> getList() {
+	public ArrayList<Company> getListSecure() {
 		ArrayList<Company> list = new ArrayList<Company>();
 		dbHandler.connectDB();
 		try {
@@ -48,8 +48,58 @@ public class CompanyService {
 			return null;
 		}
 	}
+	
+	public String tokenCreator(String email , String password){
+		return tokenManager.encodeCompanyEmailPassword(email, password);
+	}
+	
+	public ArrayList<Company> getList() {
+		ArrayList<Company> list = new ArrayList<Company>();
+		dbHandler.connectDB();
+		try {
+			ResultSet rs = dbHandler.executeGetQuery("SELECT * FROM Company");
+			while (rs.next()) {
+				Company c = new Company();
+				int coid = rs.getInt("coid");
+				c.setCoid(coid);
+				String email = rs.getString("email");
+				c.setEmail(email);
+				String password = rs.getString("password");
+				c.setPassword(password);
+				String name = rs.getString("name");
+				c.setName(name);
+				String city = rs.getString("city");
+				c.setCity(city);
+				String latitude = rs.getString("latitude");
+				c.setLatitude(latitude);
+				String longitude = rs.getString("longitude");
+				c.setLongitude(longitude);
+				String phone = rs.getString("phone");
+				c.setPhone(phone);
 
-	public Company getCompanyWithID(int id, String token) {
+				list.add(c);
+			}
+			dbHandler.closeDB();
+			return list;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	public boolean tokenChecker(String token) {
+		ArrayList<Company> list = getList();
+		
+		for (int i = 0; i < list.size(); i++) {
+			System.out.println("KIYAS -> " + token +" VS " + list.get(i).getEmail()+":"+list.get(i).getPassword());
+			if(token.equals(tokenManager.encodeCompanyEmailPassword(list.get(i).getEmail(), list.get(i).getPassword()))) {
+				return true;
+			}
+		}
+		return false;
+		
+	}
+
+	public Company getCompanyWithID(int id) {
 
 		Company returnedCompany = new Company();
 		try {
@@ -68,26 +118,24 @@ public class CompanyService {
 		} catch (Exception e) {
 			return null;
 		}
-
-		if (!token.equals("Logged-Out")) {
-			String email = tokenManager.decodeCompanyToken(token)[0];
-			String password = tokenManager.decodeCompanyToken(token)[1];
-			int requesterID = getCompanyIdWithEmailAndPassword(email, password);
-
-			if (requesterID == id) {
-				return returnedCompany;
-			} else {
-				returnedCompany.setPassword(null);
-				return returnedCompany;
-			}
-		}
-
+		
 		returnedCompany.setPassword(null);
 		dbHandler.closeDB();
 		return returnedCompany;
 	}
 
 	public boolean addCompany(Company company) {
+
+		try {
+			if (company.getEmail().equals("") || company.getPassword().equals("") || company.getCity().equals("")
+					|| company.getLatitude().equals("") || company.getName().equals("")
+					|| company.getPhone().equals("")) {
+				return false;
+			}
+		} catch (NullPointerException e) {
+			return false;
+		}
+
 		dbHandler.connectDB();
 		try {
 			dbHandler.executeSetQuery(
@@ -105,7 +153,7 @@ public class CompanyService {
 	}
 
 	public boolean deleteCompany(int id, String token) {
-		if (token.equals("Logged-Out")) {
+		if (!tokenChecker(token)) {
 			return false;
 		}
 		String username = tokenManager.decodeCompanyToken(token)[0];
@@ -127,6 +175,10 @@ public class CompanyService {
 
 	public boolean updateCompany(Company companyNew, int id, String token) {
 		dbHandler.connectDB();
+
+		if (!tokenChecker(token)) {
+			return false;
+		}
 
 		if (companyNew.getCity() == null || companyNew.getPassword() == null || companyNew.getLatitude() == null
 				|| companyNew.getLatitude() == null || companyNew.getName() == null || companyNew.getPhone() == null
@@ -172,6 +224,7 @@ public class CompanyService {
 
 			while (rs.next()) {
 				CompanyToken c = new CompanyToken();
+				
 				int coid = rs.getInt("coid");
 				c.setCoid(coid);
 				String email = rs.getString("email");
@@ -188,6 +241,8 @@ public class CompanyService {
 				c.setLongitude(longitude);
 				String phone = rs.getString("phone");
 				c.setPhone(phone);
+				
+				c.setToken(tokenManager.encodeCompanyEmailPassword(email, password));
 
 				return c;
 			}
@@ -217,12 +272,18 @@ public class CompanyService {
 	}
 
 	public Company getCompanyFromToken(String token) {
+
+		if (!tokenChecker(token)) {
+			return null;
+		}
+
 		String[] ep = tokenManager.decodeCompanyToken(token);
 		String email = ep[0];
 		String password = ep[1];
 		Company company = new Company();
 		company.setEmail(email);
 		company.setPassword(password);
+		
 
 		CompanyToken ctoken = getCompanyWithEmailAndPasswordObject(company);
 		company.setCity(ctoken.getCity());

@@ -41,9 +41,12 @@ public class UserService {
 	public boolean addUser(User user) {
 		dbHandler.connectDB();
 		
+		if(user.getLatitude().length() > 9) {
 		user.setLatitude(user.getLatitude().substring(0,10));
+		}
+		if(user.getLongitude().length() > 9) {
 		user.setLongitude(user.getLongitude().substring(0,10));
-
+		}
 		if (user.getEmail() == null && user.getPassword() == null && user.getLatitude() == null
 				&& user.getLongitude() == null) {
 			return false;
