@@ -4,6 +4,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.aspectj.weaver.patterns.IScope;
+
 import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.Statement;
 
@@ -15,13 +17,27 @@ public class DatabaseHandler {
 	Connection conn;
 	Statement st;
 	
+	
+	
+	
 
 	public Connection connectDB() {
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			conn = (Connection) DriverManager.getConnection(URL, USERNAME, PASSWORD);
-			st = (Statement) conn.createStatement();
-			System.out.println("Database is connected.");
+		
+			if(conn == null) {
+				Class.forName("com.mysql.jdbc.Driver");
+				conn = (Connection) DriverManager.getConnection(URL, USERNAME, PASSWORD);
+				st = (Statement) conn.createStatement();
+				System.out.println("Connecting to Database.");
+			}
+			if(conn.isClosed()) {
+				Class.forName("com.mysql.jdbc.Driver");
+				conn = (Connection) DriverManager.getConnection(URL, USERNAME, PASSWORD);
+				st = (Statement) conn.createStatement();
+				System.out.println("Connecting to Database.");
+			}
+			
+			
 			return conn;
 		} catch (Exception e) {
 			System.out.println("Could not initialize the database.");
@@ -35,9 +51,11 @@ public class DatabaseHandler {
 	
 	
 	public void closeDB(){
+		
+		System.out.println("Connection Closed.");
 		try {
 			conn.close();
-			System.out.println("Database connection closed");
+		
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -45,11 +63,12 @@ public class DatabaseHandler {
 		}
 	}
 	
-	public void executeSetQuery(String query) {
+	public String executeSetQuery(String query) {
 		try {
 			st.executeUpdate(query);
+			return "OK";
 		} catch (Exception e) {
-			// TODO: handle exception
+			return e.getMessage();
 		}
 	}
 	

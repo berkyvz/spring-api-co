@@ -1,4 +1,4 @@
-package com.catchopportunity.springapico.tokenmanager;
+package com.catchopportunity.springapico.helper;
 
 import java.util.Base64;
 

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import org.springframework.stereotype.Service;
 
 import com.catchopportunity.springapico.database.DatabaseHandler;
-import com.catchopportunity.springapico.tokenmanager.TokenManager;
+import com.catchopportunity.springapico.helper.TokenManager;
 
 @Service
 public class CompanyService {
@@ -15,8 +15,9 @@ public class CompanyService {
 	TokenManager tokenManager = new TokenManager();
 
 	public ArrayList<Company> getListSecure() {
-		ArrayList<Company> list = new ArrayList<Company>();
 		dbHandler.connectDB();
+		ArrayList<Company> list = new ArrayList<Company>();
+		
 		try {
 			ResultSet rs = dbHandler.executeGetQuery("SELECT * FROM Company");
 			while (rs.next()) {
@@ -45,6 +46,7 @@ public class CompanyService {
 			dbHandler.closeDB();
 			return list;
 		} catch (Exception e) {
+			dbHandler.closeDB();
 			return null;
 		}
 	}
@@ -54,8 +56,9 @@ public class CompanyService {
 	}
 	
 	public ArrayList<Company> getList() {
-		ArrayList<Company> list = new ArrayList<Company>();
 		dbHandler.connectDB();
+		ArrayList<Company> list = new ArrayList<Company>();
+	
 		try {
 			ResultSet rs = dbHandler.executeGetQuery("SELECT * FROM Company");
 			while (rs.next()) {
@@ -82,24 +85,29 @@ public class CompanyService {
 			dbHandler.closeDB();
 			return list;
 		} catch (Exception e) {
+			dbHandler.closeDB();
 			return null;
 		}
 	}
 
 	public boolean tokenChecker(String token) {
+		dbHandler.connectDB();
 		ArrayList<Company> list = getList();
 		
 		for (int i = 0; i < list.size(); i++) {
 			System.out.println("KIYAS -> " + token +" VS " + list.get(i).getEmail()+":"+list.get(i).getPassword());
 			if(token.equals(tokenManager.encodeCompanyEmailPassword(list.get(i).getEmail(), list.get(i).getPassword()))) {
+				dbHandler.closeDB();
 				return true;
 			}
 		}
+		dbHandler.closeDB();
 		return false;
 		
 	}
 
 	public Company getCompanyWithID(int id) {
+		dbHandler.connectDB();
 
 		Company returnedCompany = new Company();
 		try {
@@ -116,6 +124,7 @@ public class CompanyService {
 				returnedCompany.setPhone(rs.getString("phone"));
 			}
 		} catch (Exception e) {
+			dbHandler.closeDB();
 			return null;
 		}
 		
@@ -125,18 +134,21 @@ public class CompanyService {
 	}
 
 	public boolean addCompany(Company company) {
+		dbHandler.connectDB();
 
 		try {
 			if (company.getEmail().equals("") || company.getPassword().equals("") || company.getCity().equals("")
 					|| company.getLatitude().equals("") || company.getName().equals("")
 					|| company.getPhone().equals("")) {
+				dbHandler.closeDB();
 				return false;
 			}
 		} catch (NullPointerException e) {
+			dbHandler.closeDB();
 			return false;
 		}
 
-		dbHandler.connectDB();
+		
 		try {
 			dbHandler.executeSetQuery(
 					"INSERT INTO Company(email , password , name , city , latitude , longitude ,phone) VALUES " + "( '"
@@ -153,7 +165,9 @@ public class CompanyService {
 	}
 
 	public boolean deleteCompany(int id, String token) {
+		dbHandler.connectDB();
 		if (!tokenChecker(token)) {
+			dbHandler.closeDB();
 			return false;
 		}
 		String username = tokenManager.decodeCompanyToken(token)[0];
@@ -167,6 +181,7 @@ public class CompanyService {
 				dbHandler.closeDB();
 				return true;
 			} catch (Exception e) {
+				dbHandler.closeDB();
 				return false;
 			}
 		}
@@ -178,6 +193,7 @@ public class CompanyService {
 		dbHandler.connectDB();
 
 		if (!tokenChecker(token)) {
+			dbHandler.closeDB();
 			return false;
 		}
 
@@ -189,6 +205,7 @@ public class CompanyService {
 		}
 
 		if (token.equals("Logged-Out")) {
+			dbHandler.closeDB();
 			return false;
 		}
 
@@ -244,7 +261,7 @@ public class CompanyService {
 				c.setPhone(phone);
 				
 				c.setToken(tokenManager.encodeCompanyEmailPassword(email, password));
-
+				dbHandler.closeDB();
 				return c;
 			}
 		} catch (Exception e) {
@@ -262,6 +279,7 @@ public class CompanyService {
 					"SELECT * FROM Company WHERE email='" + email + "' AND password = '" + password + "';");
 
 			while (rs.next()) {
+				dbHandler.closeDB();
 				return rs.getInt("coid");
 			}
 		} catch (Exception e) {
@@ -273,8 +291,10 @@ public class CompanyService {
 	}
 
 	public Company getCompanyFromToken(String token) {
+		dbHandler.connectDB();
 
 		if (!tokenChecker(token)) {
+			dbHandler.closeDB();
 			return null;
 		}
 
@@ -295,23 +315,26 @@ public class CompanyService {
 		company.setName(ctoken.getName());
 		company.setPassword(password);
 		company.setPhone(ctoken.getPhone());
-
+		dbHandler.closeDB();
 		return company;
 
 	}
 
 	public Boolean isExist(String email, String token) {
+		dbHandler.connectDB();
 		try {
 			Company c = getCompanyFromToken(token);
 
 			if (email.equals(c.getEmail())) {
+				dbHandler.closeDB();
 				return true;
 			}
 
 		} catch (Exception e) {
+			dbHandler.closeDB();
 			return false;
 		}
-
+		dbHandler.closeDB();
 		return false;
 
 	}

@@ -6,12 +6,14 @@ import java.util.ArrayList;
 import org.springframework.stereotype.Service;
 
 import com.catchopportunity.springapico.company.Company;
+import com.catchopportunity.springapico.company.CompanyService;
 import com.catchopportunity.springapico.database.DatabaseHandler;
 
 @Service
 public class OpportunityService {
 
 	DatabaseHandler dbHandler = new DatabaseHandler();
+	CompanyService companyService = new CompanyService();
 
 	public ArrayList<Opportunity> getAllOpportunities() {
 		ArrayList<Opportunity> oppList = new ArrayList<Opportunity>();
@@ -123,7 +125,7 @@ public class OpportunityService {
 		}
 		try {
 			ArrayList<Opportunity> list = getAllOpportunities();
-			Opportunity o = list.get(list.size() - 1); //this is not a good way :(
+			Opportunity o = list.get(list.size() - 1); // this is not a good way :(
 			dbHandler.connectDB();
 			dbHandler.executeSetQuery("INSERT INTO Generate(oid , coid) VALUES ( " + o.getOid() + " , " + coid + ");");
 		} catch (Exception e) {
@@ -134,6 +136,29 @@ public class OpportunityService {
 		return true;
 	}
 
+	public Company getCompanyIdFromOpportunityId(int oid) {
+		dbHandler.connectDB();
+		int coid = -1;
+		try {
+			ResultSet rs = dbHandler.executeGetQuery("SELECT * FROM Generate WHERE oid= " + oid + "  ;");
+			while (rs.next()) {
+				coid = rs.getInt("coid");
+			}
+			if (coid != -1) {
+
+				Company c = companyService.getCompanyWithID(coid);
+				dbHandler.closeDB();
+				return c;
+			}
+		} catch (Exception e) {
+			dbHandler.closeDB();
+			return null;
+		}
+		dbHandler.closeDB();
+		return null;
+
+	}
+
 	public boolean deleteOpportunity(int index, int coid) {
 		index--;
 		dbHandler.connectDB();
@@ -142,6 +167,7 @@ public class OpportunityService {
 		try {
 			dbHandler.executeSetQuery("DELETE  FROM Opportunity WHERE oid=" + deletingOp.getOid() + ";");
 			dbHandler.executeSetQuery("DELETE  FROM Generate WHERE oid=" + deletingOp.getOid() + ";");
+			dbHandler.executeSetQuery("DELETE FROM Reserve WHERE oid=" + deletingOp.getOid() + ";");
 		} catch (Exception e) {
 			dbHandler.closeDB();
 			return false;
@@ -151,4 +177,5 @@ public class OpportunityService {
 		return true;
 
 	}
+
 }
