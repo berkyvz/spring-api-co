@@ -451,4 +451,40 @@ public class UserService {
 		return returnn;
 	}
 
+	public Opportunity reservetionDone(String token, int oid) {
+		if (!tokenChecker(token)) {
+			return null;
+		}
+
+		User user = getUserFromToken(token);
+		Opportunity o = opportunityService.getOpportunityWithID(oid);
+		boolean isok = false;
+
+		try {
+			int reservationID = -1;
+			dbHandler.connectDB();
+			ResultSet rs = dbHandler
+					.executeGetQuery("SELECT * FROM Reserve WHERE oid= " + oid + " AND uid=" + user.getUid() + ";");
+			while (rs.next()) {
+				reservationID = rs.getInt("rid");
+			}
+			dbHandler.executeSetQuery("DELETE FROM Reserve WHERE rid=" + reservationID + " ;");
+			isok = true;
+			if(reservationID == -1) {
+				dbHandler.closeDB();
+				return null;
+			}
+		} catch (Exception e) {
+			dbHandler.closeDB();
+			return null;
+		}
+
+		if (isok) {
+			return o;
+
+		} else {
+			return null;
+		}
+	}
+
 }

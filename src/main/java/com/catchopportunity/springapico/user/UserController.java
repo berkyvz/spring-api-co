@@ -24,6 +24,7 @@ import com.catchopportunity.springapico.opportunity.OpportunityService;
 @RestController
 public class UserController {
 
+
 	@Autowired
 	private UserService userService;
 	
@@ -129,6 +130,19 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).build();
 		}
 		
+
+	}
+	
+	
+	@RequestMapping(method = RequestMethod.POST, value = "/user/opportunity/qr/{oid}") // get opportunities reserved
+	public ResponseEntity<?> getMyOpportunity(@RequestHeader("Auth") String token , @PathVariable("oid") int oid) {
+		Opportunity op = userService.reservetionDone(token , oid);
+		if(op != null) {
+			return ResponseEntity.status(HttpStatus.OK).body(op);
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+		}
 
 	}
 	
