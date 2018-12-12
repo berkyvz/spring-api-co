@@ -15,6 +15,7 @@ import com.catchopportunity.springapico.helper.TokenManager;
 import com.catchopportunity.springapico.opportunity.Opportunity;
 import com.catchopportunity.springapico.opportunity.OpportunityItem;
 import com.catchopportunity.springapico.opportunity.OpportunityService;
+import com.mysql.fabric.xmlrpc.base.Array;
 
 @Service
 public class UserService {
@@ -107,7 +108,7 @@ public class UserService {
 
 	}
 
-	public boolean tokenChecker(String token) {
+	private boolean tokenChecker(String token) {
 		dbHandler.connectDB();
 		ArrayList<User> list = getUserList();
 
@@ -192,7 +193,7 @@ public class UserService {
 			}
 
 		} catch (Exception e) {
-			
+
 			dbHandler.closeDB();
 			return null;
 		}
@@ -226,7 +227,7 @@ public class UserService {
 			dbHandler.closeDB();
 			return false;
 		}
-		
+
 		dbHandler.closeDB();
 		return true;
 
@@ -287,66 +288,65 @@ public class UserService {
 		return tu;
 
 	}
-	
-	public Boolean deleteOneReserve(String token , int id) {
+
+	public Boolean deleteOneReserve(String token, int id) {
 		dbHandler.connectDB();
-		
+
 		if (!tokenChecker(token)) {
 			dbHandler.closeDB();
 			return false;
 		}
-		
+
 		User user = getUserFromToken(token);
+
 		int deleting_rid = -1;
 		try {
 			dbHandler.connectDB();
-			ResultSet rs = dbHandler.executeGetQuery("SELECT * FROM Reserve WHERE oid="+id+" AND uid="+user.getUid()+"; ");
-			dbHandler.closeDB();
-			
+			dbHandler.connectDB();
+			ResultSet rs = dbHandler
+					.executeGetQuery("SELECT * FROM Reserve WHERE oid=" + id + " AND uid=" + user.getUid() + "; ");
+
 			while (rs.next()) {
-				deleting_rid = rs.getInt("rid");	
+				deleting_rid = rs.getInt("rid");
 			}
-			
+
 		} catch (Exception e) {
 			dbHandler.closeDB();
 			return false;
 		}
-		
+
 		int oldcount = Integer.parseInt(opportunityService.getOpportunityWithID(id).getCount());
 		try {
 			dbHandler.connectDB();
-			dbHandler.executeSetQuery("DELETE FROM Reserve WHERE rid= "+deleting_rid+";");
-			dbHandler.executeSetQuery("UPDATE Opportunity SET count='"+(oldcount+1)+"' WHERE oid= "+id+";");
+			dbHandler.executeSetQuery("DELETE FROM Reserve WHERE rid= " + deleting_rid + ";");
+			dbHandler.executeSetQuery("UPDATE Opportunity SET count='" + (oldcount + 1) + "' WHERE oid= " + id + ";");
 			dbHandler.closeDB();
 		} catch (Exception e) {
 			dbHandler.closeDB();
 			return false;
 		}
-		
-		
+
 		return true;
-		
-		
-		
+
 	}
 
 	public ArrayList<OpportunityItem> getMyList(String token) {
 		dbHandler.connectDB();
-		
+
 		if (!tokenChecker(token)) {
 			dbHandler.closeDB();
 			return null;
 		}
-		
+
 		User user = getUserFromToken(token);
 		ArrayList<OpportunityItem> allItems = getOpportunityListItem(user.getLatitude(), user.getLongitude());
-		
+
 		ArrayList<Integer> myOpIds = new ArrayList<Integer>();
 		try {
 			dbHandler.connectDB();
-			ResultSet rs = dbHandler.executeGetQuery("SELECT * FROM Reserve WHERE uid="+user.getUid()+";");
+			ResultSet rs = dbHandler.executeGetQuery("SELECT * FROM Reserve WHERE uid=" + user.getUid() + ";");
 
-			while(rs.next()) {
+			while (rs.next()) {
 				myOpIds.add(rs.getInt("oid"));
 			}
 		} catch (Exception e) {
@@ -358,20 +358,97 @@ public class UserService {
 		for (int i = 0; i < allItems.size(); i++) {
 			OpportunityItem selectedOItem = allItems.get(i);
 			for (int j = 0; j < myOpIds.size(); j++) {
-				if(myOpIds.get(j) == selectedOItem.getOpportunity().getOid()) {
-					//add this to list
+				if (myOpIds.get(j) == selectedOItem.getOpportunity().getOid()) {
+					// add this to list
 					myList.add(selectedOItem);
 				}
 			}
 		}
-		
+
 		dbHandler.closeDB();
 		return myList;
-		
-		
-
 	}
 
+	public ArrayList<OpportunityItem> searchBy(String type, String input, String token) {
 
+		if (!tokenChecker(token)) {
+			return null;
+		}
+
+		User user = getUserFromToken(token);
+
+		if (type.equals("Distance")) {
+			int distanceInM = Integer.parseInt(input);
+			ArrayList<OpportunityItem> list = getItemMaxDistance(user, distanceInM);
+			return list;
+		}
+		if (type.equals("Description")) {
+			String description = input;
+			ArrayList<OpportunityItem> list = getItemFromDescription(user, description);
+			return list;
+		}
+		if (type.equals("City")) {
+			String city = input;
+			ArrayList<OpportunityItem> list = getItemFromCity(user, city);
+			return list;
+		}
+		if (type.equals("Id")) {
+			int oid = Integer.parseInt(input);
+			ArrayList<OpportunityItem> list = getOpportunityFromID(user, oid);
+			return list;
+		}
+
+		return null;
+	}
+
+	private ArrayList<OpportunityItem> getOpportunityFromID(User user, int oid) {
+		ArrayList<OpportunityItem> allItems = getOpportunityListItem(user.getLatitude(), user.getLongitude());
+		ArrayList<OpportunityItem> returnn = new ArrayList<OpportunityItem>();
+		for (int i = 0; i < allItems.size(); i++) {
+			if (allItems.get(i).getOpportunity().getOid() == oid) {
+				returnn.add(allItems.get(i));
+			}
+		}
+		return returnn;
+	}
+
+	private ArrayList<OpportunityItem> getItemMaxDistance(User user, int distanceInM) {
+		ArrayList<OpportunityItem> allItems = getOpportunityListItem(user.getLatitude(), user.getLongitude());
+		ArrayList<OpportunityItem> returnn = new ArrayList<OpportunityItem>();
+		for (int i = 0; i < allItems.size(); i++) {
+			int distanceActual = (int) Double.parseDouble(allItems.get(i).getDistance());
+			if (distanceActual < distanceInM) {
+				returnn.add(allItems.get(i));
+			}
+		}
+		return returnn;
+	}
+
+	private ArrayList<OpportunityItem> getItemFromCity(User user, String city) {
+		ArrayList<OpportunityItem> allItems = getOpportunityListItem(user.getLatitude(), user.getLongitude());
+		ArrayList<OpportunityItem> returnn = new ArrayList<OpportunityItem>();
+		for (int i = 0; i < allItems.size(); i++) {
+			if (allItems.get(i).getOpportunity().getCity().equals(city)) {
+				returnn.add(allItems.get(i));
+			}
+		}
+		return returnn;
+	}
+
+	private ArrayList<OpportunityItem> getItemFromDescription(User user, String description) {
+		ArrayList<OpportunityItem> allItems = getOpportunityListItem(user.getLatitude(), user.getLongitude());
+		ArrayList<OpportunityItem> returnn = new ArrayList<OpportunityItem>();
+		for (int i = 0; i < allItems.size(); i++) {
+			String desc1 = allItems.get(i).getOpportunity().getDesc1();
+			String desc2 = allItems.get(i).getOpportunity().getDesc2();
+			String desc3 = allItems.get(i).getOpportunity().getDesc3();
+
+			if (desc1.contains(description) || desc2.contains(description) || desc3.contains(description)) {
+				returnn.add(allItems.get(i));
+			}
+
+		}
+		return returnn;
+	}
 
 }

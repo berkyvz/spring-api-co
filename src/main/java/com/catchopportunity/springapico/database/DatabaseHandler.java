@@ -28,13 +28,13 @@ public class DatabaseHandler {
 				Class.forName("com.mysql.jdbc.Driver");
 				conn = (Connection) DriverManager.getConnection(URL, USERNAME, PASSWORD);
 				st = (Statement) conn.createStatement();
-				System.out.println("Connecting to Database.");
+				
 			}
 			if(conn.isClosed()) {
 				Class.forName("com.mysql.jdbc.Driver");
 				conn = (Connection) DriverManager.getConnection(URL, USERNAME, PASSWORD);
 				st = (Statement) conn.createStatement();
-				System.out.println("Connecting to Database.");
+				
 			}
 			
 			
@@ -52,7 +52,7 @@ public class DatabaseHandler {
 	
 	public void closeDB(){
 		
-		System.out.println("Connection Closed.");
+		
 		try {
 			conn.close();
 		

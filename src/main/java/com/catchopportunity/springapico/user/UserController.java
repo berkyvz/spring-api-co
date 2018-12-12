@@ -1,6 +1,7 @@
 package com.catchopportunity.springapico.user;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import javax.websocket.server.PathParam;
 
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.catchopportunity.springapico.database.DatabaseHandler;
@@ -113,6 +115,25 @@ public class UserController {
 		}
 
 	}
+	
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/user/search") // get opportunities reserved
+	public ResponseEntity<?> getMyOpportunity(@RequestParam Map<String,String> requestParams , @RequestHeader("Auth") String token) {
+		String type=requestParams.get("type");
+		String input=requestParams.get("input");
+		ArrayList<OpportunityItem> filteredList = userService.searchBy(type , input , token);
+		if(filteredList != null) {
+			return ResponseEntity.status(HttpStatus.OK).body(filteredList);
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).build();
+		}
+		
+
+	}
+	
+	
+	
 	
 	
 	

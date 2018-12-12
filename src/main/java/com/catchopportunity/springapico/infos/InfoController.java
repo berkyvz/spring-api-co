@@ -17,10 +17,10 @@ public class InfoController {
 
 		// Company Controller
 		methodList.add(new Info("GET", "/company", "Just get the all Company List."));
-		methodList.add(new Info("GET", "/company/id", "get a Company with idi . it doesnt return password."));
+		methodList.add(new Info("GET", "/company/id", "get a Company with ID. it doesnt return password."));
 		methodList.add(new Info("GET", "/company/me", "Get all info about the company which is already logged in. it needs AuthSession header as token"));
 		methodList.add(new Info("POST", "/company", "add a company to a List. It takes a Company JSON object."));
-		methodList.add(new Info("DELETE", "/company/{id}" ,"delete the copmany with id. AuthSession header token must be token of the company that try to delete."));
+		methodList.add(new Info("DELETE", "/company/{id}" ,"delete the company with id. AuthSession header token must be token of the company that try to delete."));
 		methodList.add(new Info("PUT", "/company/id", "update the company with id (Cannot change id and email), AuthSession header token must be token of the company that try to edit."));
 		methodList.add(new Info("POST", "/company/login", "Takes Company email password and return all data with token"));
 		methodList.add(new Info("POST", "/company/dashboardcheck", "takes email and token . returns status OK if given informations are true"));
@@ -28,15 +28,14 @@ public class InfoController {
 		//Opportunity Controller
 		methodList.add(new Info("GET", "/opportunity", "Get all opportunities that can be listed."));
 		methodList.add(new Info("GET", "/opportunity/{id}", "Get opportunity with id"));
-		methodList.add(new Info("GET", "/company/opportunity", "It needs cookie to understant who you are. returns opportunities that the company owned."));
+		methodList.add(new Info("GET", "/company/opportunity", "It needs AuthSession header to understant who you are. returns opportunities that the company owned."));
 		methodList.add(new Info("GET", "/company/opportunity/{index}", "It takes an index and returns the index of the opportunities of the company who logged in"));
-		methodList.add(new Info("POST", "/opportunity", "Adding a opportunity. It needs Cookie."));
-		methodList.add(new Info("DELETE", "/company/opportunity/{index}", "Deletes the opportunity from company. It needs cookie also ou must know the index of the Opportunity  [NOT ID]"));
+		methodList.add(new Info("POST", "/opportunity", "Adding a opportunity. It needs AuthSession header."));
+		methodList.add(new Info("DELETE", "/company/opportunity/{index}", "Deletes the opportunity from company. It needs Header also you must know the index of the Opportunity  [NOT ID]"));
 
 		//User Controller
 		methodList.add(new Info("GET", "/user/login/}", "Takes 'Auth' header as a token and give all datas about this user."));
 		methodList.add(new Info("POST", "/user/register/}", "Takes 'User' model and save it to DB"));
-		
 		
 		
 		
