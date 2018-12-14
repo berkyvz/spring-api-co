@@ -11,6 +11,7 @@ public class Opportunity {
 	private String desc3;
 	private String price;
 	private String city;
+	
 
 	public Opportunity(int oid, String latitude, String longitude, String count, String desc1, String desc2,
 			String desc3, String price, String city) {
@@ -24,6 +25,7 @@ public class Opportunity {
 		this.desc3 = desc3;
 		this.price = price;
 		this.city = city;
+		
 	}
 
 	public Opportunity() {
