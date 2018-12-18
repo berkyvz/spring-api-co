@@ -92,7 +92,9 @@ public class CompanyController {
 
 		boolean response = companyService.updateCompany(companyNew, id, token);
 		if (response) {
-			CompanyToken tc = new CompanyToken(companyNew , companyService.tokenCreator(companyNew.getEmail(), companyNew.getPassword()));
+			Company c = companyService.getCompanyWithIDNotSecure(id);
+			String newToken = companyService.tokenCreator(c.getEmail(), c.getPassword());
+			CompanyToken tc = new CompanyToken(c , newToken);
 			return ResponseEntity.status(HttpStatus.OK).body(tc);
 		}
 		return ResponseEntity.status(HttpStatus.NETWORK_AUTHENTICATION_REQUIRED).build();

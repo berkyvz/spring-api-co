@@ -132,6 +132,31 @@ public class CompanyService {
 		dbHandler.closeDB();
 		return returnedCompany;
 	}
+	
+	public Company getCompanyWithIDNotSecure(int id) {
+		dbHandler.connectDB();
+
+		Company returnedCompany = new Company();
+		try {
+			dbHandler.connectDB();
+			ResultSet rs = dbHandler.executeGetQuery("SELECT * FROM Company WHERE coid = " + id + ";");
+			while (rs.next()) {
+				returnedCompany.setCoid(rs.getInt("coid"));
+				returnedCompany.setEmail(rs.getString("email"));
+				returnedCompany.setPassword(rs.getString("password"));
+				returnedCompany.setCity(rs.getString("city"));
+				returnedCompany.setLatitude(rs.getString("latitude"));
+				returnedCompany.setLongitude(rs.getString("longitude"));
+				returnedCompany.setName(rs.getString("name"));
+				returnedCompany.setPhone(rs.getString("phone"));
+			}
+		} catch (Exception e) {
+			dbHandler.closeDB();
+			return null;
+		}
+		dbHandler.closeDB();
+		return returnedCompany;
+	}
 
 	public boolean addCompany(Company company) {
 		dbHandler.connectDB();
@@ -191,7 +216,6 @@ public class CompanyService {
 
 	public boolean updateCompany(Company companyNew, int id, String token) {
 		dbHandler.connectDB();
-
 		if (!tokenChecker(token)) {
 			dbHandler.closeDB();
 			return false;
@@ -204,16 +228,11 @@ public class CompanyService {
 			return false;
 		}
 
-		if (token.equals("Logged-Out")) {
-			dbHandler.closeDB();
-			return false;
-		}
-
 		String email = tokenManager.decodeCompanyToken(token)[0];
 		String password = tokenManager.decodeCompanyToken(token)[1];
 		int realID = getCompanyIdWithEmailAndPassword(email, password);
-
 		if (realID == id) {
+			System.out.println("Here3");
 			try {
 				dbHandler.executeSetQuery("UPDATE Company SET password = '" + companyNew.getPassword() + "' , "
 						+ "name = '" + companyNew.getName() + "' , " + "city = '" + companyNew.getCity() + "' , "
@@ -279,7 +298,6 @@ public class CompanyService {
 					"SELECT * FROM Company WHERE email='" + email + "' AND password = '" + password + "';");
 
 			while (rs.next()) {
-				dbHandler.closeDB();
 				return rs.getInt("coid");
 			}
 		} catch (Exception e) {
