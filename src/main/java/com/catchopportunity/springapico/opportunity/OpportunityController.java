@@ -10,6 +10,7 @@ import com.catchopportunity.springapico.company.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -24,11 +25,13 @@ public class OpportunityController {
 	@Autowired
 	private CompanyService companyService;
 
+	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "opportunity") // Get all opportunities.
 	public ResponseEntity<?> getAllOpportunities() {
 		return ResponseEntity.status(HttpStatus.OK).body(opportunityService.getAllOpportunities());
 	}
 
+	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "opportunity/{id}") // get opportunity with id.
 	public ResponseEntity<?> getOpportunityWithID(@PathVariable("id") int id) {
 		Opportunity o = opportunityService.getOpportunityWithID(id);
@@ -38,6 +41,7 @@ public class OpportunityController {
 			return ResponseEntity.status(HttpStatus.OK).body(o);
 	}
 
+	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "company/opportunity") // returning cookie's opportunity;
 	public ResponseEntity<?> getCompanyOpportunities(@RequestHeader("AuthSession") String token) {
 
@@ -53,6 +57,7 @@ public class OpportunityController {
 
 	}
 
+	@CrossOrigin
 	@RequestMapping(method = RequestMethod.POST, value = "/opportunity") // adding opportunity . Cookie needed.
 	public ResponseEntity<?> generateOpportunity(@RequestBody Opportunity opportunity,
 			@RequestHeader("AuthSession") String token) {
@@ -74,6 +79,7 @@ public class OpportunityController {
 
 	}
 
+	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "company/opportunity/{index}") // returning Companies'
 																						// opportunity by index
 	public ResponseEntity<?> getCompanyOpportunitiesbyID(@PathVariable("index") int index,
@@ -90,6 +96,7 @@ public class OpportunityController {
 
 	}
 
+	@CrossOrigin
 	@RequestMapping(method = RequestMethod.DELETE, value = "company/opportunity/{index}")
 	public ResponseEntity<?> deleteOpportunity(@RequestHeader("AuthSession") String token,
 			@PathVariable("index") int index) {

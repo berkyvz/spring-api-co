@@ -31,11 +31,13 @@ public class CompanyController {
 
 	// USUAL THINGS
 
+	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "/company") // GET -> return All Companies.
 	public ResponseEntity<?> getCompanies() {
 		return ResponseEntity.status(HttpStatus.OK).body(companyService.getListSecure());
 	}
 
+	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "/company/{id}") // GET -> takes header and id returns company.
 	public ResponseEntity<?> getCompanyByID(@PathVariable("id") int id) {
 		Company com = companyService.getCompanyWithID(id);
@@ -45,6 +47,7 @@ public class CompanyController {
 			return ResponseEntity.status(HttpStatus.OK).body(com);
 	}
 
+	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "/company/me") // GET -> takes header and returns the company.
 	public ResponseEntity<?> getCompanyInfos(@RequestHeader("AuthSession") String token) {
 
@@ -57,6 +60,7 @@ public class CompanyController {
 
 	}
 
+	@CrossOrigin
 	@RequestMapping(method = RequestMethod.POST, value = "/company") // adds company to list.
 	public ResponseEntity<?> registerCompany(@RequestBody Company company) {
 		boolean isSaved = companyService.addCompany(company);
@@ -66,6 +70,7 @@ public class CompanyController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 	}
 
+	@CrossOrigin
 	@RequestMapping(method = RequestMethod.DELETE, value = "/company/{id}") // DELETE (id) ->takes header token and
 																			// delete the company with id
 
@@ -78,6 +83,7 @@ public class CompanyController {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 	}
 
+	@CrossOrigin
 	@RequestMapping(method = RequestMethod.PUT, value = "/company/{id}") // takes new company model and token header for
 																			// update all the datas of this id's company
 																			//
@@ -94,6 +100,7 @@ public class CompanyController {
 
 	// LOGIN LOGOUT
 
+	@CrossOrigin
 	@RequestMapping(method = RequestMethod.POST, value = "/company/login") // takes email and password returns company													// with token
 	public ResponseEntity<CompanyToken> getToken(@RequestBody Company company) {
 		
@@ -105,6 +112,7 @@ public class CompanyController {
 		}
 	}
 
+	@CrossOrigin
 	@RequestMapping(method = RequestMethod.POST, value = "/company/dashboardcheck") //takes email and token and returns if the user exist
 	public ResponseEntity<?> dashboardCheck(@RequestBody CompanyToken company) {
 		String token = company.getToken();

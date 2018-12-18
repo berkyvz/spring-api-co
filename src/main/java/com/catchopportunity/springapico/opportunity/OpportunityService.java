@@ -113,6 +113,7 @@ public class OpportunityService {
 	public boolean addOpportunity(Opportunity opportunity, int coid) {
 		dbHandler.connectDB();
 		try {
+			System.out.println(opportunity.getPrice());
 			dbHandler.executeSetQuery(
 					"INSERT INTO Opportunity(price, count , city , latitude , longitude , desc1 , desc2 , desc3 ) "
 							+ "VALUES ('" + opportunity.getPrice() + "' , '" + opportunity.getCount() + "' , '"
